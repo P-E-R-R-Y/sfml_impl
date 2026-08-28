@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "ModuleManager.hpp"
+#include "IModuleManager.hpp"
 #include "IGraphic2Module.hpp"
 #include "IGraphic3Module.hpp"
 #include "IAudioModule.hpp"
@@ -8,7 +8,7 @@
 #include <string>
 
 struct SfmlImplTest : ::testing::Test {
-    ModuleManager<IGraphic2Module, IGraphic3Module, IAudioModule> modules;
+    IModuleManager modules;
 };
 
 TEST_F(SfmlImplTest, LoadsGraphic2AndAudioButNotGraphic3) {
@@ -106,3 +106,20 @@ TEST_F(SfmlImplTest, FullWalkthrough) {
     graphic->deleteWindow(window);
 }
 
+
+/**
+ * @brief L'inverse de la chaine accepts : la 2D ne fournit pas la 3D.
+ *
+ * IGraphic3Module::accepts ne contient que "graphic3", donc un vendor qui
+ * declare "graphic2" reste invisible a une demande de 3D. Une couverture
+ * partielle est un nullptr, pas une erreur.
+ */
+TEST_F(SfmlImplTest, AGraphic2VendorNeverAnswersAGraphic3Request) {
+    ASSERT_TRUE(modules.Load(SFML_IMPL_PATH, "sfml"));
+
+    ASSERT_NE(modules.Get<IGraphic2Module>("sfml"), nullptr);
+    EXPECT_EQ(modules.Get<IGraphic3Module>("sfml"), nullptr);
+
+    EXPECT_EQ(modules.GetAllByType<IGraphic2Module>().size(), 1u);
+    EXPECT_TRUE(modules.GetAllByType<IGraphic3Module>().empty());
+}
