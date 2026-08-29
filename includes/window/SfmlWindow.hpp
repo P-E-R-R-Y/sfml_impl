@@ -91,6 +91,12 @@ class SfmlWindow : public graphic::IWindow2 {
             _window.setFramerateLimit(limit);
         }
 
+        /* Propriete de LA fenetre chez sfml : elle meurt avec elle, et le
+         * pointeur revient tout seul des qu'on en sort. */
+        void setMouseVisibility(bool visible) override {
+            _window.setMouseCursorVisible(visible);
+        }
+
         int32_t getDelta() override {
             return static_cast<int32_t>(_deltaTime.asMilliseconds());
         }
