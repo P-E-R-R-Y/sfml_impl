@@ -1,6 +1,6 @@
 # sfml_impl
 
-version: 0.1.0
+version: 0.2.0
 
 [![Docs](https://img.shields.io/badge/docs-doxygen-blue.svg)](https://p-e-r-r-y.github.io/sfml_impl)
 
