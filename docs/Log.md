@@ -3,6 +3,13 @@
 Markers: 🟢 added · 🔴 breaking · 🔵 fix · ⚪ internal or docs · 🟡 proposed
 in the plan, no code written yet.
 
+## v0.2.0
+
+- 🟢 `SfmlGraphicModule::claims()` revendique `"opengl"` : deux vendors
+  OpenGL tenus ensemble se marchent dessus dans le driver, `acquire()`
+  refuse desormais avant que l'un des deux n'y touche.
+- 🔴 Suit imodule v0.2.0, qui absorbe `modulemanager`.
+
 ## v0.1.0
 
 - 🟢 fills `graphic2` + `audio`

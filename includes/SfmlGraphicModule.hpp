@@ -40,13 +40,37 @@ public:
     const char *type() const override { return IGraphic2Module::contract; }
     const char *name() const override { return "sfml"; }
 
-    // window
+    /**
+     * @brief Revendique "opengl" : aucun autre vendor OpenGL en meme temps.
+     *
+     * sfml gere ses contextes GL elle-meme et les rend courants sur le
+     * thread au fil de ses appels. Un autre vendor qui manipule le meme
+     * contexte en parallele - raylib, qui le garde en globale - lui prend
+     * le contexte courant sous les pieds : le rendu part dans la mauvaise
+     * fenetre, ou le driver tombe. Rien de tout cela ne remonte comme une
+     * erreur rattrapable.
+     *
+     * D'ou le refus a l'acquisition plutot qu'une detection apres coup.
+     *
+     * @return const char *const*
+     */
+    const char *const *claims() const override {
+        static const char *claimed[] = { "opengl", nullptr };
+        return claimed;
+    }
+
+    /**
+     * @brief Ouvre une fenetre. sfml sait en tenir plusieurs.
+     *
+     * La PREMIERE est retenue comme celle que window() prete : sfml en ouvre
+     * autant qu'on veut, mais le clavier ne suit que celle qui a le focus,
+     * il faut donc en designer une.
+     *
+     * @return graphic::IWindow2*
+     */
     graphic::IWindow2 *createWindow(int32_t screenWidth, int32_t screenHeight, std::string title) override {
         SfmlWindow *created = new SfmlWindow(screenWidth, screenHeight, title);
 
-        /* On retient la premiere : c'est celle que window() pretera aux
-         * invites. sfml sait en ouvrir plusieurs, mais une seule a le
-         * clavier - celle qui a le focus. */
         if (!_window)
             _window = created;
         return created;
@@ -59,8 +83,9 @@ public:
 
     graphic::IWindow2 *window() override { return _window; }
 
-    // input - the window is handed over at construction, the way an
-    // ITexture is to an ISprite : linked once, never reconciled later
+    /* La fenetre est LUE, contrairement a raylib : sfml attache son etat
+     * d'entree a une fenetre precise, il faut donc dire laquelle. Elle est
+     * donnee a la construction et n'est jamais rebranchee ensuite. */
     graphic::IKeyboard *createKeyboard(graphic::IWindow *window) override {
         return new SfmlKeyboard(*static_cast<SfmlWindow *>(window));
     }

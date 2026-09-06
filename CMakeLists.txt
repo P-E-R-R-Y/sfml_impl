@@ -18,7 +18,7 @@ cmake_var_extract(BUILD_SHARED_LIBS)
 cmake_var_extract(CMAKE_POSITION_INDEPENDENT_CODE)
 
 find_package(System REQUIRED)
-find_package(modulemanager REQUIRED)
+find_package(imodule REQUIRED)
 find_package(igraphic REQUIRED)
 find_package(iaudio REQUIRED)
 find_package(Sfml REQUIRED)
@@ -30,7 +30,7 @@ set(SOURCE_FILES sources/sfml.cpp)
 
 # Deux facons de recuperer ce vendor, deux cibles explicites :
 #
-#   sfml_impl         SHARED  sfml_impl.dylib   -> a dlopen (ModuleManager)
+#   sfml_impl         SHARED  sfml_impl.dylib   -> a dlopen (IModuleManager)
 #   sfml_impl_static  STATIC  libsfml_impl.a    -> a linker en dur
 #
 # Le type n'est VOLONTAIREMENT pas gouverne par BUILD_SHARED_LIBS. La raison
@@ -75,14 +75,14 @@ foreach(flavour ${PROJECT_NAME} ${PROJECT_NAME}_static)
 endforeach()
 
 # sfml_impl.dylib, pas libsfml_impl.dylib : c'est ce nom que
-# ModuleManager::Load() recoit dans les tests et les exemples.
+# IModuleManager::Load() recoit dans les tests et les exemples.
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "")
 
 #----------- examples -----------
 
 # Les deux facons de recuperer le vendor, cote a cote.
 
-# dynamique : utilitaires + modulemanager + contrats. Ne linke PAS le vendor, il
+# dynamique : utilitaires + imodule + contrats. Ne linke PAS le vendor, il
 # le dlopen au runtime - d'ou l'argv[1] qui accepte n'importe quelle dll.
 add_executable(${PROJECT_NAME}_demo_dynamic examples/dynamic.cpp)
 add_dependencies(${PROJECT_NAME}_demo_dynamic ${PROJECT_NAME})
@@ -95,11 +95,11 @@ target_compile_definitions(${PROJECT_NAME}_demo_dynamic PRIVATE
 target_link_libraries(${PROJECT_NAME}_demo_dynamic PRIVATE
   igraphic
   iaudio
-  modulemanager
+  imodule
   ${CMAKE_DL_LIBS}
 )
 
-# statique : utilitaires + vendor + contrats. Ni modulemanager ni ${CMAKE_DL_LIBS}
+# statique : utilitaires + vendor + contrats. Ni imodule ni ${CMAKE_DL_LIBS}
 # dans cette liste - c'est la difference, et elle se lit ici. Les include
 # dirs viennent de la cible statique elle-meme, plus rien a recopier.
 add_executable(${PROJECT_NAME}_demo_static examples/static.cpp)
@@ -130,7 +130,7 @@ target_link_libraries(${PROJECT_NAME}_tests
   gtest_main
   igraphic
   iaudio
-  modulemanager
+  imodule
   ${CMAKE_DL_LIBS}
 )
 
