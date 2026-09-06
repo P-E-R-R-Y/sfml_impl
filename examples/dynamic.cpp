@@ -3,9 +3,8 @@
  * @brief Le vendor charge A CHAUD : le binaire ne connait aucun vendor.
  *
  * Il n'inclut aucun header Sfml*, ne linke pas SFML, et ne sait qu'une
- * chose : le chemin d'une .so/.dylib. ModuleManager fait le dlopen, resout
- * getGraphic2Module() / getGraphic3Module() / getAudioModule() par leur
- * symbole, et rend des pointeurs de contrat.
+ * chose : le chemin d'une .so/.dylib. IModuleManager fait le dlopen, appelle
+ * getModules(), et rend des pointeurs de contrat.
  *
  * Le meme binaire accepte raylib_impl en argv[1] sans etre recompile. Et
  * Get<IGraphic3Module>() rend nullptr derriere sfml, puisque ce symbole
@@ -22,7 +21,7 @@
 #include "IAudioModule.hpp"
 #include "IGraphic2Module.hpp"
 #include "IGraphic3Module.hpp"
-#include "ModuleManager.hpp"
+#include "IModuleManager.hpp"
 
 #include "DemoScene.hpp"
 
@@ -30,7 +29,7 @@ int main(int argc, char **argv) {
     const std::string path = (argc > 1) ? argv[1] : SFML_IMPL_PATH;
     const std::string assets = (argc > 2) ? argv[2] : ASSETS_DIR;
 
-    ModuleManager<IGraphic2Module, IGraphic3Module, IAudioModule> modules;
+    IModuleManager modules;
 
     // Load() rend false quand la cle est deja prise ; un chemin invalide
     // leve l'exception de SharedLibrary (dlopen a echoue).
